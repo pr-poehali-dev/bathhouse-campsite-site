@@ -1,8 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { toast } from '@/hooks/use-toast';
+
+const REVIEWS_URL = 'https://functions.poehali.dev/ca87c5fe-71f6-4635-a654-817f8117ba05';
+
+interface Review {
+  id: number;
+  name: string;
+  rating: number;
+  text: string;
+  date: string;
+}
 
 const HERO = 'https://cdn.poehali.dev/projects/1b7c7e35-66d3-4d53-860a-4d5b8046d25b/files/8c89cdf4-e661-42e3-ad67-562bb99f6702.jpg';
 
@@ -41,6 +53,44 @@ const Index = () => {
   const tags = ['Все', 'Помещения', 'Баня', 'Территория'];
   const filtered = filter === 'Все' ? GALLERY : GALLERY.filter((g) => g.tag === filter);
 
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [form, setForm] = useState({ name: '', text: '', rating: 5 });
+  const [hover, setHover] = useState(0);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    fetch(REVIEWS_URL)
+      .then((r) => r.json())
+      .then((d) => setReviews(d.reviews || []))
+      .catch(() => {});
+  }, []);
+
+  const submitReview = async () => {
+    if (!form.name.trim() || !form.text.trim()) {
+      toast({ title: 'Заполните имя и текст отзыва', variant: 'destructive' });
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch(REVIEWS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.review) {
+        setReviews((prev) => [data.review, ...prev]);
+        setForm({ name: '', text: '', rating: 5 });
+        toast({ title: 'Спасибо за ваш отзыв!' });
+      } else {
+        toast({ title: data.error || 'Не удалось отправить отзыв', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Не удалось отправить отзыв', variant: 'destructive' });
+    }
+    setSending(false);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* HEADER */}
@@ -53,6 +103,7 @@ const Index = () => {
           <nav className="hidden md:flex items-center gap-8 text-sm text-background/90">
             <a href="#gallery" className="hover:text-accent transition-colors">Галерея</a>
             <a href="#booking" className="hover:text-accent transition-colors">Бронирование</a>
+            <a href="#reviews" className="hover:text-accent transition-colors">Отзывы</a>
             <a href="#contacts" className="hover:text-accent transition-colors">Контакты</a>
           </nav>
         </div>
@@ -193,6 +244,89 @@ const Index = () => {
             <p className="text-xs text-muted-foreground text-center mt-4">
               Нажимая кнопку, вы соглашаетесь с обработкой данных.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* REVIEWS */}
+      <section id="reviews" className="py-20 md:py-28 bg-muted/40">
+        <div className="container mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Отзывы</p>
+            <h2 className="font-display text-4xl md:text-6xl font-semibold mb-4">Что говорят гости</h2>
+            <p className="text-muted-foreground text-lg">
+              Реальные впечатления тех, кто уже отдыхал на нашей заимке.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-14">
+            {reviews.map((rev) => (
+              <div key={rev.id} className="bg-card rounded-2xl p-7 border border-border/60 flex flex-col">
+                <div className="flex items-center gap-1 mb-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Icon
+                      key={i}
+                      name="Star"
+                      size={18}
+                      className={i < rev.rating ? 'text-accent fill-accent' : 'text-border'}
+                    />
+                  ))}
+                </div>
+                <p className="text-foreground/80 leading-relaxed flex-1">«{rev.text}»</p>
+                <div className="flex items-center justify-between mt-6 pt-5 border-t border-border/60">
+                  <span className="font-display text-xl font-semibold">{rev.name}</span>
+                  <span className="text-sm text-muted-foreground">{rev.date}</span>
+                </div>
+              </div>
+            ))}
+            {reviews.length === 0 && (
+              <p className="text-muted-foreground col-span-full text-center py-8">
+                Пока нет отзывов — станьте первым!
+              </p>
+            )}
+          </div>
+
+          <div className="max-w-2xl mx-auto bg-card rounded-3xl p-8 md:p-10 border border-border/60 shadow-sm">
+            <h3 className="font-display text-2xl font-semibold mb-6">Оставить отзыв</h3>
+            <div className="flex items-center gap-2 mb-5">
+              <span className="text-muted-foreground text-sm mr-2">Оценка:</span>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setForm({ ...form, rating: i + 1 })}
+                  onMouseEnter={() => setHover(i + 1)}
+                  onMouseLeave={() => setHover(0)}
+                  className="transition-transform hover:scale-110"
+                >
+                  <Icon
+                    name="Star"
+                    size={26}
+                    className={i < (hover || form.rating) ? 'text-accent fill-accent' : 'text-border'}
+                  />
+                </button>
+              ))}
+            </div>
+            <Input
+              placeholder="Ваше имя"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="mb-4 bg-background h-12"
+            />
+            <Textarea
+              placeholder="Поделитесь впечатлениями об отдыхе..."
+              value={form.text}
+              onChange={(e) => setForm({ ...form, text: e.target.value })}
+              className="mb-6 bg-background min-h-28"
+            />
+            <Button
+              size="lg"
+              onClick={submitReview}
+              disabled={sending}
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-full h-13 text-base"
+            >
+              {sending ? 'Отправляем...' : 'Опубликовать отзыв'}
+            </Button>
           </div>
         </div>
       </section>

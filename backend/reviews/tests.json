@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Получить список отзывов",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Добавить отзыв",
+      "method": "POST",
+      "path": "/",
+      "body": {"name": "Тест Гость", "rating": 5, "text": "Отличное место для отдыха, очень понравилось!"},
+      "expectedStatus": 200
+    },
+    {
+      "name": "Ошибка при пустом отзыве",
+      "method": "POST",
+      "path": "/",
+      "body": {"name": "", "text": ""},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
