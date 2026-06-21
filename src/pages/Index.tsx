@@ -145,21 +145,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="container mx-auto py-20 md:py-28">
-        <div className="grid md:grid-cols-3 gap-8">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="bg-card rounded-2xl p-8 border border-border/60 hover:-translate-y-1 transition-transform">
-              <div className="w-14 h-14 rounded-xl bg-accent/15 flex items-center justify-center mb-5">
-                <Icon name={f.icon} size={26} className="text-accent" />
-              </div>
-              <h3 className="font-display text-2xl font-semibold mb-2">{f.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{f.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* GALLERY */}
       <section id="gallery" className="py-20 md:py-28 bg-primary text-primary-foreground">
         <div className="container mx-auto">
