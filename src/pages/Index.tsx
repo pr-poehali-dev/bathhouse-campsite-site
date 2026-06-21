@@ -100,7 +100,7 @@ const Index = () => {
             <Icon name="Flame" size={26} className="text-accent" />
             <span className="font-display text-2xl font-semibold tracking-wide">Банная заимка</span>
           </a>
-          <nav className="hidden md:flex items-center gap-2 text-sm">
+          <nav className="hidden md:flex items-center gap-3 text-base font-medium">
             {[
               { href: '#gallery', label: 'Галерея' },
               { href: '#booking', label: 'Бронирование' },
@@ -110,7 +110,7 @@ const Index = () => {
               <a
                 key={href}
                 href={href}
-                className="px-4 py-2 rounded-full border border-background/30 text-background/90 backdrop-blur-sm bg-background/10 hover:bg-accent hover:border-accent hover:text-accent-foreground transition-all duration-200"
+                className="px-5 py-2.5 rounded-full border-2 border-background/60 text-background font-semibold backdrop-blur-sm bg-background/15 shadow-md hover:bg-accent hover:border-accent hover:text-accent-foreground transition-all duration-200 hover:shadow-lg hover:scale-105"
               >
                 {label}
               </a>
