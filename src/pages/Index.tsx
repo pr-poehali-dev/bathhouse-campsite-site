@@ -100,11 +100,21 @@ const Index = () => {
             <Icon name="Flame" size={26} className="text-accent" />
             <span className="font-display text-2xl font-semibold tracking-wide">Банная заимка</span>
           </a>
-          <nav className="hidden md:flex items-center gap-8 text-sm text-background/90">
-            <a href="#gallery" className="hover:text-accent transition-colors">Галерея</a>
-            <a href="#booking" className="hover:text-accent transition-colors">Бронирование</a>
-            <a href="#reviews" className="hover:text-accent transition-colors">Отзывы</a>
-            <a href="#contacts" className="hover:text-accent transition-colors">Контакты</a>
+          <nav className="hidden md:flex items-center gap-2 text-sm">
+            {[
+              { href: '#gallery', label: 'Галерея' },
+              { href: '#booking', label: 'Бронирование' },
+              { href: '#reviews', label: 'Отзывы' },
+              { href: '#contacts', label: 'Контакты' },
+            ].map(({ href, label }) => (
+              <a
+                key={href}
+                href={href}
+                className="px-4 py-2 rounded-full border border-background/30 text-background/90 backdrop-blur-sm bg-background/10 hover:bg-accent hover:border-accent hover:text-accent-foreground transition-all duration-200"
+              >
+                {label}
+              </a>
+            ))}
           </nav>
         </div>
       </header>
