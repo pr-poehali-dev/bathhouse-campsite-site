@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Получить список новостей",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Отказ без пароля при создании",
+      "method": "POST",
+      "path": "/?action=create",
+      "body": {"title": "Тест", "body": "Текст", "tag": "Новость"},
+      "expectedStatus": 403
+    },
+    {
+      "name": "Проверка неверного пароля",
+      "method": "POST",
+      "path": "/?action=admin-check",
+      "body": {},
+      "expectedStatus": 403
+    }
+  ]
+}

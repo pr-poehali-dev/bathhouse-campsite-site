@@ -3,8 +3,11 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import NewsSection from '@/components/NewsSection';
+
+const NEWS_API = 'https://functions.poehali.dev/a24517e2-7b9c-4e77-9a0b-5b481cb624d0';
 
 const REVIEWS_URL = 'https://functions.poehali.dev/ca87c5fe-71f6-4635-a654-817f8117ba05';
 
@@ -52,6 +55,34 @@ const Index = () => {
   const [filter, setFilter] = useState('Все');
   const tags = ['Все', 'Помещения', 'Баня', 'Территория'];
   const filtered = filter === 'Все' ? GALLERY : GALLERY.filter((g) => g.tag === filter);
+
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminInput, setAdminInput] = useState('');
+  const [adminDialog, setAdminDialog] = useState(false);
+  const [adminChecking, setAdminChecking] = useState(false);
+
+  const checkAdmin = async () => {
+    setAdminChecking(true);
+    try {
+      const res = await fetch(`${NEWS_API}?action=admin-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminInput },
+        body: JSON.stringify({}),
+      });
+      const d = await res.json();
+      if (d.ok) {
+        setAdminPassword(adminInput);
+        setAdminDialog(false);
+        setAdminInput('');
+        toast({ title: 'Вы вошли как администратор' });
+      } else {
+        toast({ title: 'Неверный пароль', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Ошибка подключения', variant: 'destructive' });
+    }
+    setAdminChecking(false);
+  };
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [form, setForm] = useState({ name: '', text: '', rating: 5 });
@@ -116,9 +147,41 @@ const Index = () => {
                 {label}
               </a>
             ))}
+            {adminPassword ? (
+              <button onClick={() => { setAdminPassword(''); toast({ title: 'Вы вышли из режима администратора' }); }}
+                className="px-5 py-2.5 rounded-full border-2 border-accent bg-accent text-accent-foreground font-semibold shadow-md hover:bg-accent/80 transition-all text-sm flex items-center gap-2">
+                <Icon name="ShieldCheck" size={16} />Выйти
+              </button>
+            ) : (
+              <button onClick={() => setAdminDialog(true)}
+                className="px-5 py-2.5 rounded-full border-2 border-background/40 text-background/70 font-semibold bg-background/10 hover:border-accent hover:text-accent transition-all text-sm flex items-center gap-2">
+                <Icon name="Lock" size={16} />Админ
+              </button>
+            )}
           </nav>
         </div>
       </header>
+
+      {/* ДИАЛОГ ВХОДА АДМИНИСТРАТОРА */}
+      <Dialog open={adminDialog} onOpenChange={setAdminDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Вход для администратора</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm mb-4">Введите пароль, чтобы управлять новостями и комментариями.</p>
+          <Input
+            type="password"
+            placeholder="Пароль"
+            value={adminInput}
+            onChange={e => setAdminInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && checkAdmin()}
+            className="mb-4 h-12"
+          />
+          <Button onClick={checkAdmin} disabled={adminChecking} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-full h-12">
+            {adminChecking ? 'Проверяем...' : 'Войти'}
+          </Button>
+        </DialogContent>
+      </Dialog>
 
       {/* HERO */}
       <section className="relative h-[100svh] flex items-end overflow-hidden">
@@ -326,6 +389,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* NEWS */}
+      <NewsSection adminPassword={adminPassword} />
 
       {/* CONTACTS */}
       <section id="contacts" className="bg-primary text-primary-foreground py-20 md:py-28">
