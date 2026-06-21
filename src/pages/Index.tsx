@@ -209,6 +209,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* NEWS */}
+      <NewsSection adminPassword={adminPassword} />
+
       {/* GALLERY */}
       <section id="gallery" className="py-20 md:py-28 bg-primary text-primary-foreground">
         <div className="container mx-auto">
@@ -432,9 +435,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      {/* NEWS */}
-      <NewsSection adminPassword={adminPassword} />
 
       {/* FOOTER */}
       <footer className="bg-[#1d150e] text-background/70 py-10">
