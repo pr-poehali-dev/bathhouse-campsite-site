@@ -105,6 +105,7 @@ const Index = () => {
               { href: '#gallery', label: 'Галерея' },
               { href: '#booking', label: 'Бронирование' },
               { href: '#reviews', label: 'Отзывы' },
+              { href: '#news', label: 'Новости и акции' },
               { href: '#contacts', label: 'Контакты' },
             ].map(({ href, label }) => (
               <a
